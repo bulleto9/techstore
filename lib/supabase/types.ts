@@ -32,11 +32,13 @@ export interface Database {
         }
         Insert: Omit<Database['public']['Tables']['products']['Row'], 'id' | 'created_at'>
         Update: Partial<Database['public']['Tables']['products']['Insert']>
+        Relationships: []
       }
       profiles: {
         Row: { id: string; full_name: string; created_at: string }
         Insert: { id: string; full_name?: string }
         Update: { full_name?: string }
+        Relationships: []
       }
       orders: {
         Row: {
@@ -51,8 +53,11 @@ export interface Database {
         }
         Insert: Omit<Database['public']['Tables']['orders']['Row'], 'id' | 'created_at'>
         Update: { status?: 'pending' | 'paid' | 'failed'; stripe_payment_id?: string }
+        Relationships: []
       }
     }
+    Views: Record<string, never>
+    Functions: Record<string, never>
   }
 }
 
