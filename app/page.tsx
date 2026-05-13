@@ -1,65 +1,76 @@
-import Image from "next/image";
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import ProductCard from '@/components/product-card'
 
-export default function Home() {
+const CATEGORIES = ['Phones', 'Laptops', 'Tablets', 'Audio', 'Accessories']
+
+export default async function HomePage() {
+  const supabase = await createClient()
+  const { data: featured } = await supabase
+    .from('products')
+    .select('*')
+    .eq('featured', true)
+    .gt('stock', 0)
+    .order('created_at', { ascending: false })
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <>
+      {/* Hero */}
+      <div style={{
+        background: '#111', color: '#fff',
+        padding: '5rem 2rem', textAlign: 'center',
+      }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-0.03em', margin: '0 0 0.75rem' }}>
+          The Latest in Electronics
+        </h1>
+        <p style={{ color: '#aaa', marginBottom: '1.75rem', fontSize: '1rem' }}>
+          Phones · Laptops · Accessories · Audio · Gaming
+        </p>
+        <Link href="/products" style={{
+          background: '#fff', color: '#111',
+          padding: '0.7rem 2rem', borderRadius: '4px',
+          fontWeight: 700, fontSize: '0.95rem',
+        }}>
+          Shop Now →
+        </Link>
+      </div>
+
+      {/* Category pills */}
+      <div style={{
+        display: 'flex', gap: '0.6rem', padding: '1.25rem 2rem',
+        overflowX: 'auto', borderBottom: '1px solid var(--border)',
+      }}>
+        <Link href="/products" style={{
+          background: '#111', color: '#fff',
+          padding: '0.3rem 1rem', borderRadius: '99px', fontSize: '0.85rem', whiteSpace: 'nowrap',
+        }}>All</Link>
+        {CATEGORIES.map(cat => (
+          <Link key={cat} href={`/products?category=${cat}`} style={{
+            border: '1px solid var(--border-dark)', color: 'var(--muted)',
+            padding: '0.3rem 1rem', borderRadius: '99px', fontSize: '0.85rem', whiteSpace: 'nowrap',
+          }}>{cat}</Link>
+        ))}
+      </div>
+
+      {/* Featured products */}
+      <div style={{ padding: '2rem' }}>
+        <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.08em', color: '#999', textTransform: 'uppercase', marginBottom: '1.25rem' }}>
+          Featured Products
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+        {featured && featured.length > 0 ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            gap: '1rem',
+          }}>
+            {featured.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <p style={{ color: 'var(--muted)' }}>No featured products yet. Add some in your Supabase dashboard.</p>
+        )}
+      </div>
+    </>
+  )
 }
