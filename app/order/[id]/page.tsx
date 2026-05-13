@@ -13,12 +13,18 @@ export default async function OrderConfirmationPage({ params }: Props) {
   if (!user) redirect('/auth/login')
 
   // id here is the Stripe Payment Intent ID (pi_xxx)
-  const { data: order } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('stripe_payment_id', id)
-    .eq('user_id', user.id)
-    .single()
+  // Poll briefly to handle webhook timing delay after payment
+  let order = null
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const { data } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('stripe_payment_id', id)
+      .eq('user_id', user.id)
+      .single()
+    if (data) { order = data; break }
+    if (attempt < 4) await new Promise(r => setTimeout(r, 1200))
+  }
 
   if (!order) {
     return (

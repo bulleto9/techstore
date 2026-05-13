@@ -19,6 +19,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Cart is empty' }, { status: 400 })
   }
 
+  // After items empty check, before creating payment intent
+  for (const item of items) {
+    const { data: product } = await supabase
+      .from('products')
+      .select('stock, name')
+      .eq('id', item.product_id)
+      .single()
+    if (!product || product.stock < item.quantity) {
+      return NextResponse.json(
+        { error: `"${item.name}" is out of stock or has insufficient quantity.` },
+        { status: 409 }
+      )
+    }
+  }
+
   const totalCents = Math.round(
     items.reduce((sum, item) => sum + item.price * item.quantity, 0) * 100
   )

@@ -57,7 +57,12 @@ export interface Database {
       }
     }
     Views: Record<string, never>
-    Functions: Record<string, never>
+    Functions: {
+      decrement_stock: {
+        Args: { product_id: string; amount: number }
+        Returns: void
+      }
+    }
   }
 }
 

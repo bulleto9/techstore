@@ -11,7 +11,8 @@ function LoginForm() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirect = searchParams.get('redirect') || '/'
+  const rawRedirect = searchParams.get('redirect') || '/'
+  const redirect = rawRedirect.startsWith('/') ? rawRedirect : '/'
   const supabase = createClient()
 
   async function handleSubmit(e: React.FormEvent) {

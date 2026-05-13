@@ -51,8 +51,13 @@ describe('POST /api/checkout', () => {
   })
 
   it('returns clientSecret when authenticated with valid items', async () => {
+    const mockSingle = jest.fn().mockResolvedValue({ data: { stock: 10, name: 'iPhone' } })
+    const mockEq = jest.fn().mockReturnValue({ single: mockSingle })
+    const mockSelect = jest.fn().mockReturnValue({ eq: mockEq })
+    const mockFrom = jest.fn().mockReturnValue({ select: mockSelect })
     mockCreateClient.mockResolvedValue({
       auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'u1' } } }) },
+      from: mockFrom,
     } as any)
     mockPaymentIntents.mockResolvedValue({ client_secret: 'pi_test_secret_xyz' } as any)
 

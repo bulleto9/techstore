@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       await supabase.rpc('decrement_stock', {
         product_id: item.product_id,
         amount: item.quantity,
-      } as unknown as undefined)
+      })
     }
   }
 
