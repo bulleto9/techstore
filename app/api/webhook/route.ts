@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
   }
 
   if (event.type === 'payment_intent.succeeded') {
-    const pi = event.data.object as {
+    const pi = event.data.object as unknown as {
       id: string
       amount: number
       metadata: { user_id: string; items: string; shipping: string }
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       await supabase.rpc('decrement_stock', {
         product_id: item.product_id,
         amount: item.quantity,
-      })
+      } as unknown as undefined)
     }
   }
 
